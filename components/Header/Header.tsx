@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import css from "./Header.module.css";
-import TagsMenu from "../TagsMenu/TagsMenu";
+import Link from 'next/link';
+import css from './Header.module.css';
+import TagsMenu from '../TagsMenu/TagsMenu';
+import AuthNavigation from '@/components/AuthNavigation/AuthNavigation'; // 🔹 додаємо навігацію авторизації
 
 const Header = () => {
   return (
@@ -11,15 +12,17 @@ const Header = () => {
         NoteHub
       </Link>
 
-      <nav aria-label="Main Navigation">
+      <nav aria-label="Main Navigation" className={css.nav}>
         <ul className={css.navigation}>
           <li>
             <Link href="/">Home</Link>
           </li>
+
           <li>
             <TagsMenu />
           </li>
-          {/* новий пункт меню — створення нотатки */}
+
+          {/* Створення нотатки */}
           <li>
             <Link
               href="/notes/action/create"
@@ -28,6 +31,11 @@ const Header = () => {
             >
               + Create note
             </Link>
+          </li>
+
+          {/* 🔹 Навігація авторизації (Sign In / Sign Up / Logout / Profile) */}
+          <li>
+            <AuthNavigation />
           </li>
         </ul>
       </nav>
