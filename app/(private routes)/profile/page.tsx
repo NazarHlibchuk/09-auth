@@ -3,35 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import type { Metadata } from 'next';
 import { useAuthStore } from '@/lib/store/authStore';
-import css from '@/styles/ProfilePage.module.css';
+import css from './edit/EditProfilePage.module.css';
 
-// ✅ SEO meta-теги
-export const metadata: Metadata = {
-  title: 'Profile Page | NoteHub',
-  description: 'View and manage your profile information on NoteHub.',
-  openGraph: {
-    title: 'Profile Page | NoteHub',
-    description: 'Manage your personal details and avatar on NoteHub.',
-    url: 'https://your-project.vercel.app/profile',
-    images: [
-      {
-        url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'NoteHub Profile Page',
-      },
-    ],
-  },
-};
 
-interface User {
-  id: string;
-  email: string;
-  avatar?: string;
-  name?: string;
-}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -47,7 +22,7 @@ export default function ProfilePage() {
         if (!res.ok) throw new Error('Failed to fetch profile');
         const data = await res.json();
         setUser(data);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setError('You need to sign in first.');
         router.push('/sign-in');

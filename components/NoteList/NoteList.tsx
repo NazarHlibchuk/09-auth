@@ -13,7 +13,6 @@ interface NoteListProps {
 export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const pathname = usePathname();
 
   const deleteNoteMutation = useMutation<Note, Error, string>({
     mutationFn: deleteNote,

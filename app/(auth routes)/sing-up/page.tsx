@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register } from '@/lib/api/clientApi'; // функція запиту
-import css from '@/styles/AuthPage.module.css'; // або твій файл стилів
+import css from './AuthPage.module.css'; // або твій файл стилів
 
 export default function SignUpPage() {
   const router = useRouter();

@@ -8,7 +8,7 @@ import Loading from '@/app/loading';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isAuthenticated, setUser, clearIsAuthenticated } = useAuthStore();
+  const { isAuthenticated, setUser, clearIsAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
