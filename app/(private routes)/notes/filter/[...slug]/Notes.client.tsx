@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { fetchNotes } from '@/lib/api';
+import { fetchNotes } from '@/lib/api/clientApi';
 import NoteList from '@/components/NoteList/NoteList';
 import ErrorMessage from '@/components/Error/ErrorMessage';
 import Pagination from '@/components/Pagination/Pagination';
@@ -30,8 +30,14 @@ export default function NotesClient({ tag = 'All' }: NotesClientProps) {
   }, [debouncedSearch, tag]);
 
   const { data, isError, isSuccess } = useQuery<NotesHTTPResponse, Error>({
-    queryKey: ['notes', tag, debouncedSearch, page],
-    queryFn: () => fetchNotes(tag, debouncedSearch, page),
+    queryKey: ['notes', { tag, search: debouncedSearch, page }],
+
+   queryFn: () => fetchNotes({
+  tag,
+  search: debouncedSearch,
+  page
+}),
+
     refetchOnMount: false,
     staleTime: 60_000,
   });
