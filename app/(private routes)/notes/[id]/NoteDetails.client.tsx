@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchNote } from "@/lib/api";
+import { fetchNoteById } from '@/lib/api/clientApi';
 import { useRouter } from "next/navigation";
 import type { Note } from "@/types/note";
 import css from "./NoteDetails.module.css";
@@ -14,7 +14,7 @@ export default function NoteDetails({ noteId }: Props) {
   const router = useRouter();
   const { data: note, isLoading, isError } = useQuery<Note>({
     queryKey: ["note", noteId],
-    queryFn: () => fetchNote(noteId),
+    queryFn: () => fetchNoteById(noteId),
   });
 
   if (isLoading) return <div>Loading...</div>;
