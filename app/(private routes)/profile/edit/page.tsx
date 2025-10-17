@@ -2,8 +2,28 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Metadata } from 'next';
 import { useAuthStore } from '@/lib/store/authStore';
-import css from '@/styles/EditProfilePage.module.css'; 
+import css from '@/styles/EditProfilePage.module.css';
+
+// ✅ SEO мета-теги
+export const metadata: Metadata = {
+  title: 'Edit Profile | NoteHub',
+  description: 'Update your profile information on NoteHub.',
+  openGraph: {
+    title: 'Edit Profile | NoteHub',
+    description: 'Edit your personal details and email address on NoteHub.',
+    url: 'https://your-project.vercel.app/profile/edit',
+    images: [
+      {
+        url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Edit Profile | NoteHub',
+      },
+    ],
+  },
+};
 
 interface User {
   id: string;
@@ -21,8 +41,7 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      // якщо користувач не залогінений — перенаправляємо на логін
-      router.push('/auth/login');
+      router.push('/sign-in'); // ✅ оновлений шлях
     }
   }, [user, router]);
 
@@ -45,8 +64,11 @@ export default function EditProfilePage() {
       }
 
       const updatedUser = await res.json();
-      setUser(updatedUser); // 🔹 оновлюємо користувача у Zustand
+      setUser(updatedUser);
       setSuccess(true);
+
+      // ✅ коротка затримка перед поверненням
+      setTimeout(() => router.push('/profile'), 1200);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -55,8 +77,8 @@ export default function EditProfilePage() {
   };
 
   return (
-    <main className={css.page}>
-      <div className={css.container}>
+    <main className={css.mainContent}>
+      <div className={css.editCard}>
         <h1 className={css.title}>Edit Profile</h1>
 
         <form onSubmit={handleSubmit} className={css.form}>
@@ -72,7 +94,9 @@ export default function EditProfilePage() {
           </label>
 
           {error && <p className={css.error}>{error}</p>}
-          {success && <p className={css.success}>Profile updated successfully!</p>}
+          {success && (
+            <p className={css.success}>Profile updated successfully!</p>
+          )}
 
           <div className={css.actions}>
             <button
@@ -92,3 +116,4 @@ export default function EditProfilePage() {
     </main>
   );
 }
+

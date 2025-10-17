@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import css from './Header.module.css';
 import TagsMenu from '../TagsMenu/TagsMenu';
-import AuthNavigation from '@/components/AuthNavigation/AuthNavigation'; // 🔹 додаємо навігацію авторизації
+import AuthNavigation from '@/components/AuthNavigation/AuthNavigation'; //  додаємо навігацію авторизації
 
 const Header = () => {
   return (

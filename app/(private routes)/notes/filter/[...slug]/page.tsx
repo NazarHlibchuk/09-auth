@@ -1,6 +1,6 @@
 // app/notes/filter/[...slug]/page.tsx
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
-import { fetchNotes } from "@/lib/api";
+import { fetchNotes } from '@/lib/api/clientApi';
 import NotesPage from "./Notes.client";
 import type { Metadata } from "next";
 
@@ -44,7 +44,7 @@ export default async function Page({ params }: PageProps) {
 
   await queryClient.prefetchQuery({
     queryKey: ["notes", tag, "", 1], // tag, search, page
-    queryFn: () => fetchNotes(tag, "", 1), // обов'язково передаємо tag
+   queryFn: () => fetchNotes({ tag, page: 1 }), // обов'язково передаємо tag
   });
 
   return (

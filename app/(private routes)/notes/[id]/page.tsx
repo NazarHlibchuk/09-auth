@@ -1,6 +1,7 @@
 // app/notes/[id]/page.tsx
 import { HydrationBoundary, dehydrate, QueryClient } from "@tanstack/react-query";
-import { fetchNote } from "@/lib/api";
+import { fetchNoteById } from '@/lib/api/clientApi';
+
 import NoteDetails from "./NoteDetails.client";
 import type { Metadata } from "next";
 
@@ -13,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
 
   try {
-    const note = await fetchNote(id);
+    const note = await fetchNoteById(id);
 
     if (!note) {
       return {
@@ -68,7 +69,8 @@ export default async function NoteDetailsPage({ params }: PageProps) {
 
   await queryClient.prefetchQuery({
     queryKey: ["note", id],
-    queryFn: () => fetchNote(id),
+    queryFn: () => fetchNoteById(id),
+
   });
 
   return (
