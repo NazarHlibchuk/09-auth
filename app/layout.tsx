@@ -5,7 +5,7 @@ import './globals.css';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
-import AuthProvider from '@/components/AuthProvider/AuthProvider'; //  додаємо
+import AuthProvider from '@/components/AuthProvider/AuthProvider'; 
 
 //  Підключення шрифтів
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NoteHub — ваш хаб для нотаток',
     description: 'Створюйте, редагуйте й організовуйте свої нотатки швидко та зручно з NoteHub.',
-    url: 'https://08-zustand-psi-jet.vercel.app/',
+    url: 'https://09-auth-sdh1.vercel.app/',
     images: [
       {
         url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     ],
     type: 'website',
   },
-  metadataBase: new URL('https://08-zustand-psi-jet.vercel.app/'),
+  metadataBase: new URL('https://09-auth-sdh1.vercel.app/'),
 };
 
 export default function RootLayout({
