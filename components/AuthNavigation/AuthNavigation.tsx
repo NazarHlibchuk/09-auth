@@ -2,18 +2,18 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { logout } from '@/lib/api/clientApi';
+import { logout as apiLogout } from '@/lib/api/clientApi';
 import { useAuthStore } from '@/lib/store/authStore';
 import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
   const router = useRouter();
-  const { user, isAuthenticated, clearIsAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore(); // ✅ використовуємо logout зі store
 
   const handleLogout = async () => {
     try {
-      await logout();
-      clearIsAuthenticated(); //  очищаємо Zustand
+      await apiLogout(); // ✅ викликаємо logout на бекенді
+      logout(); // ✅ очищаємо треба і в Zustand
       router.push('/sign-in');
     } catch (err) {
       console.error('Logout failed:', err);
