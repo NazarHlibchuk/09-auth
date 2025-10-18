@@ -1,35 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { checkSession } from '@/lib/api/clientApi';
+import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import Loading from '@/app/loading';
+import { checkSession } from '@/lib/api/clientApi';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, clearIsAuthenticated } = useAuthStore();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const verify = async () => {
-      try {
-        const data = await checkSession();
+    //  просто встановлюємо юзера, якщо сесія валідна
+    checkSession()
+      .then((data) => {
         if (data?.email) {
           setUser(data);
         } else {
           clearIsAuthenticated();
         }
-      } catch (err) {
-        console.error('AuthProvider error:', err);
-        clearIsAuthenticated();
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verify();
+      })
+      .catch(() => clearIsAuthenticated());
   }, [setUser, clearIsAuthenticated]);
-
-  if (loading) return <Loading />;
 
   return <>{children}</>;
 }
