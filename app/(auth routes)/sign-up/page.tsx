@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { register } from '@/lib/api/clientApi'; // функція запиту
-import css from './AuthPage.module.css'; // або твій файл стилів
+import { register } from '@/lib/api/clientApi';
+import { useAuthStore } from '@/lib/store/authStore'; //  додано
+import css from './AuthPage.module.css';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { setUser } = useAuthStore(); //  беремо setUser зі стора
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,8 +19,11 @@ export default function SignUpPage() {
     setError('');
 
     try {
-      await register({ email, password }); //  створення користувача через бекенд
-      router.push('/profile'); //  редірект після успішної реєстрації
+      const newUser = await register({ email, password }); //  отримуємо юзера
+      setUser(newUser); //  зберігаємо у глобальний стейт авторизації
+
+      router.push('/profile'); //  редірект після логіну
+      router.refresh(); //  оновлення UI (необов'язково, але краще додати)
     } catch (err) {
       console.error('Registration failed:', err);
       setError('Registration failed. Please try again.');

@@ -1,6 +1,6 @@
 // app/notes/filter/[...slug]/page.tsx
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
-import { fetchNotes } from '@/lib/api/clientApi';
+import { fetchNotes } from '@/lib/api/serverApi';
 import NotesPage from "./Notes.client";
 import type { Metadata } from "next";
 

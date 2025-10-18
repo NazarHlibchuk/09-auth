@@ -1,6 +1,7 @@
-// app/notes/[id]/page.tsx
+
 import { HydrationBoundary, dehydrate, QueryClient } from "@tanstack/react-query";
-import { fetchNoteById } from '@/lib/api/clientApi';
+import { fetchNoteById } from '@/lib/api/serverApi';
+
 
 import NoteDetails from "./NoteDetails.client";
 import type { Metadata } from "next";
@@ -69,7 +70,7 @@ export default async function NoteDetailsPage({ params }: PageProps) {
 
   await queryClient.prefetchQuery({
     queryKey: ["note", id],
-    queryFn: () => fetchNoteById(id),
+    queryFn: () => fetchNoteById(id),   // Тепер це server API
 
   });
 

@@ -1,70 +1,55 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { getMe } from '@/lib/api/serverApi';
 import Image from 'next/image';
-import { useAuthStore } from '@/lib/store/authStore';
+import Link from 'next/link';
+import type { Metadata } from 'next';
 import css from './edit/EditProfilePage.module.css';
 
+//  SEO metadata
+export const metadata: Metadata = {
+  title: 'Profile | NoteHub',
+};
 
+//  Це тепер серверний компонент (без "use client")
+export default async function ProfilePage() {
+  try {
+    const user = await getMe();
 
-export default function ProfilePage() {
-  const router = useRouter();
-  const { user, setUser } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    return (
+      <main className={css.mainContent}>
+        <div className={css.profileCard}>
+          <div className={css.header}>
+            <h1 className={css.formTitle}>Profile Page</h1>
+            {/*  заміна <a> → Link */}
+            <Link href="/profile/edit" className={css.editProfileButton}>
+              Edit Profile
+            </Link>
+          </div>
 
-  useEffect(() => {
-    // якщо користувача немає в Zustand, отримуємо з API
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/users/me');
-        if (!res.ok) throw new Error('Failed to fetch profile');
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error(err);
-        setError('You need to sign in first.');
-        router.push('/sign-in');
-      } finally {
-        setLoading(false);
-      }
-    };
+          <div className={css.avatarWrapper}>
+            <Image
+              src={
+                user?.avatar ||
+                'https://ac.goit.global/fullstack/react/notehub-avatar.jpg'
+              }
+              alt="User Avatar"
+              width={120}
+              height={120}
+              className={css.avatar}
+            />
+          </div>
 
-    fetchUser();
-  }, [setUser, router]);
-
-  if (loading) return <div className={css.loader}>Loading...</div>;
-  if (error) return <div className={css.error}>{error}</div>;
-
-  return (
-    <main className={css.mainContent}>
-      <div className={css.profileCard}>
-        <div className={css.header}>
-          <h1 className={css.formTitle}>Profile Page</h1>
-          <a href="/profile/edit" className={css.editProfileButton}>
-            Edit Profile
-          </a>
+          <div className={css.profileInfo}>
+            <p>Username: {user?.username}</p>
+            <p>Email: {user?.email}</p>
+          </div>
         </div>
-
-        <div className={css.avatarWrapper}>
-          <Image
-            src={
-              user?.avatar ||
-              'https://ac.goit.global/fullstack/react/notehub-avatar.jpg'
-            }
-            alt="User Avatar"
-            width={120}
-            height={120}
-            className={css.avatar}
-          />
-        </div>
-
-        <div className={css.profileInfo}>
-          <p>Username: {user?.name || 'Your username'}</p>
-          <p>Email: {user?.email}</p>
-        </div>
-      </div>
-    </main>
-  );
+      </main>
+    );
+  } catch (error) {
+    return (
+      <main className={css.mainContent}>
+        <p className={css.error}>Failed to load profile.</p>
+      </main>
+    );
+  }
 }

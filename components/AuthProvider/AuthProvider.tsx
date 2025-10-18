@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { checkSession } from '@/lib/api/clientApi';
 import { useAuthStore } from '@/lib/store/authStore';
 import Loading from '@/app/loading';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const { isAuthenticated, setUser, clearIsAuthenticated } = useAuthStore();
+  const { setUser, clearIsAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,12 +30,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }, [setUser, clearIsAuthenticated]);
 
   if (loading) return <Loading />;
-
-  //  Якщо користувач неавторизований і це приватний маршрут — редірект
-  if (!isAuthenticated && window.location.pathname.startsWith('/notes')) {
-    router.push('/sign-in');
-    return null;
-  }
 
   return <>{children}</>;
 }

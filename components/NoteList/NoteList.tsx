@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteNote } from '@/lib/api/clientApi';
 import type { Note } from '@/types/note';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link'; //  Додано Link
 import css from './NoteList.module.css';
 
 interface NoteListProps {
@@ -12,7 +12,6 @@ interface NoteListProps {
 
 export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const deleteNoteMutation = useMutation<Note, Error, string>({
     mutationFn: deleteNote,
@@ -23,10 +22,6 @@ export default function NoteList({ notes }: NoteListProps) {
 
   const handleDelete = (noteId: string) => {
     deleteNoteMutation.mutate(noteId);
-  };
-
-  const openNoteModal = (noteId: string) => {
-    router.push(`/notes/${noteId}`);
   };
 
   if (!notes || notes.length === 0) {
@@ -47,30 +42,22 @@ export default function NoteList({ notes }: NoteListProps) {
 
         return (
           <li key={note.id} className={css.listItem}>
-            <div
-              className={css.clickable}
-              role="button"
-              tabIndex={0}
-              onClick={() => openNoteModal(note.id)}
-              onKeyDown={(e) => e.key === 'Enter' && openNoteModal(note.id)}
-            >
+            {/*  Link замість router.push */}
+            <Link href={`/notes/${note.id}`} className={css.clickable}>
               <h2 className={css.title}>{note.title}</h2>
               <p className={css.content}>
                 {note.content.length > 120
                   ? note.content.slice(0, 120) + '…'
                   : note.content}
               </p>
-            </div>
+            </Link>
 
             <div className={css.footer}>
               <span className={css.tag}>{note.tag || 'No tag'}</span>
 
               <button
                 className={css.button}
-                onClick={(e) => {
-                  e.stopPropagation(); //  щоб не відкривалось модалка при кліку на "Delete"
-                  handleDelete(note.id);
-                }}
+                onClick={() => handleDelete(note.id)} // router більше не потрібен
                 disabled={isDeleting}
                 aria-label={`Delete note titled ${note.title}`}
               >
