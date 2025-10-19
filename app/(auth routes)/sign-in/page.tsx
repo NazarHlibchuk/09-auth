@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/lib/api/clientApi'; //  запит до бекенду
 import { useAuthStore } from '@/lib/store/authStore'; //  Zustand
-import css from './AuthPage.module.css'; // або твій CSS
+import css from './AuthPage.module.css'; 
 
 export default function SignInPage() {
   const router = useRouter();
