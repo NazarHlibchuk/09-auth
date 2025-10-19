@@ -8,7 +8,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const { setUser, logout } = useAuthStore();
 
   useEffect(() => {
-    // ✅ тільки синхронізуємо Zustand з cookies, без редіректів
+    // синхронізуємо стейт користувача зі сесією
     checkSession()
       .then((data) => {
         if (data?.email) {

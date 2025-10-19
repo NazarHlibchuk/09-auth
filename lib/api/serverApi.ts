@@ -1,24 +1,28 @@
 import { cookies } from 'next/headers';
 import { serverApiInstance } from './axiosInstance';
-import type { NotesHTTPResponse } from '@/types/note';
-
-import type { Note } from '@/types/note';
+import type { Note, NotesHTTPResponse } from '@/types/note';
 import type { User } from '@/types/user';
 import type { AxiosResponse } from 'axios';
 
-// ✅ Тепер async
-async function authHeaders() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+//  Повертаємо сирі cookies в заголовку Cookie
+async function cookieHeaders(): Promise<Record<'Cookie', string> | undefined> {
+  const jar = await cookies();
+  const accessToken = jar.get('accessToken')?.value;
+  const refreshToken = jar.get('refreshToken')?.value;
+
+  const parts: string[] = [];
+  if (accessToken) parts.push(`accessToken=${accessToken}`);
+  if (refreshToken) parts.push(`refreshToken=${refreshToken}`);
+
+  return parts.length ? { Cookie: parts.join('; ') } : undefined;
 }
 
 // ----------- NOTES -----------
 export const fetchNotes = async (
   params?: { search?: string; page?: number; tag?: string }
 ): Promise<NotesHTTPResponse> => {
-  const headers = await authHeaders();
-  const res = await serverApiInstance.get('/notes', {
+  const headers = await cookieHeaders();
+  const res = await serverApiInstance.get<NotesHTTPResponse>('/notes', {
     params,
     headers,
   });
@@ -26,20 +30,21 @@ export const fetchNotes = async (
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const headers = await authHeaders();
-  const res = await serverApiInstance.get(`/notes/${id}`, { headers });
+  const headers = await cookieHeaders();
+  const res = await serverApiInstance.get<Note>(`/notes/${id}`, { headers });
   return res.data;
 };
 
 // ----------- USER -----------
 export const getMe = async (): Promise<User> => {
-  const headers = await authHeaders();
-  const res = await serverApiInstance.get('/users/me', { headers });
+  const headers = await cookieHeaders();
+  const res = await serverApiInstance.get<User>('/users/me', { headers });
   return res.data;
 };
 
 // ----------- AUTH -----------
-export const checkSession = async (): Promise<AxiosResponse> => {
-  const headers = await authHeaders();
-  return await serverApiInstance.get('/auth/session', { headers });
+export const checkSession = async (): Promise<AxiosResponse<User>> => {
+  const headers = await cookieHeaders();
+  //  повертаємо повний AxiosResponse, як вимагає завдання
+  return await serverApiInstance.get<User>('/auth/session', { headers });
 };

@@ -8,12 +8,12 @@ import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore(); // ✅ використовуємо logout зі store
+  const { user, isAuthenticated, logout } = useAuthStore(); //  заміна clearIsAuthenticated → logout
 
   const handleLogout = async () => {
     try {
-      await apiLogout(); // ✅ викликаємо logout на бекенді
-      logout(); // ✅ очищаємо треба і в Zustand
+      await apiLogout(); // викликаємо бекенд
+      logout(); //  очищаємо Zustand
       router.push('/sign-in');
     } catch (err) {
       console.error('Logout failed:', err);
