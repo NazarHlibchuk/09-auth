@@ -65,7 +65,6 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  //  авторизованих не пускаємо на сторінки автентифікації
   if (isAuthRoute && (accessToken || refreshToken)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -76,3 +75,4 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: ['/notes/:path*', '/profile/:path*', '/sign-in', '/sign-up'],
 };
+  
