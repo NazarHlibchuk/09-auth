@@ -1,8 +1,5 @@
 'use client';
 
-import Header from '@/components/Header/Header';
-import Footer from '@/components/Footer/Footer';
-
 export default function PrivateLayout({
   children,
   modal,
@@ -12,12 +9,8 @@ export default function PrivateLayout({
 }) {
   return (
     <>
-      <Header />
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {children}
-      </main>
+      {children}
       {modal}
-      <Footer />
     </>
   );
 }
