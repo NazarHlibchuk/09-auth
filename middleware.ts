@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-//  Middleware за замовчуванням працює на Edge. Явно вкажемо для ревʼю:
+// ✅ Edge runtime (вимагає ревʼю)
 export const runtime = 'experimental-edge';
 
 export async function middleware(req: NextRequest) {
   const { pathname, origin } = req.nextUrl;
+
+  // ❗ ВАЖЛИВО: не запускати middleware на API/Static — додатковий захист
+  if (pathname.startsWith('/api') || pathname.startsWith('/_next') || pathname.startsWith('/static')) {
+    return NextResponse.next();
+  }
 
   const accessToken = req.cookies.get('accessToken')?.value;
   const refreshToken = req.cookies.get('refreshToken')?.value;
@@ -16,39 +21,24 @@ export async function middleware(req: NextRequest) {
   const isAuthRoute =
     pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 
-  //  приватні маршрути без жодних токенів → на логін
+  // ❌ приватні маршрути — без токенів не пускаємо
   if (isPrivateRoute && !accessToken && !refreshToken) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
-  //  немає access, але є refresh → пробуємо поновити сесію
+  // ♻️ Якщо accessToken прострочений, але є refreshToken — пробуємо оновити
   if (!accessToken && refreshToken) {
     try {
-      // Викликаємо наш серверний ендпоінт сесії з форвардингом куків
       const refreshRes = await fetch(`${origin}/api/auth/session`, {
         method: 'GET',
-        // важливо: прокидуємо вхідні кукі, щоб бек міг видати нові
-        headers: {
-          cookie: req.headers.get('cookie') ?? '',
-        },
-        // Edge runtime: credentials не працює як у браузері,
-        // тому явно передаємо cookie через headers
+        headers: { cookie: req.headers.get('cookie') ?? '' },
       });
 
       if (refreshRes.ok) {
-        // Створюємо відповідь (або редірект/next) і ДОДАЄМО set-cookie з бекенду
         const next = NextResponse.next();
-
-      
         const setCookie = refreshRes.headers.get('set-cookie');
-        if (setCookie) {
-          // Якщо бек повертає кілька set-cookie, вони будуть через коми.
-          // Append збереже їх у відповіді, щоб клієнт отримав нові токени.
-          next.headers.append('set-cookie', setCookie);
-        }
+        if (setCookie) next.headers.append('set-cookie', setCookie);
 
-        // Якщо користувач йшов на /sign-in або /sign-up, після успішного поновлення
-        // не пускаємо туди — редірект на головну
         if (isAuthRoute) {
           const redirect = NextResponse.redirect(new URL('/', req.url));
           if (setCookie) redirect.headers.append('set-cookie', setCookie);
@@ -57,7 +47,6 @@ export async function middleware(req: NextRequest) {
 
         return next;
       } else {
-        // refresh не спрацював → на логін
         return NextResponse.redirect(new URL('/sign-in', req.url));
       }
     } catch {
@@ -65,6 +54,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // ✅ Автентифікованих не пускаємо на сторінки авторизації
   if (isAuthRoute && (accessToken || refreshToken)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -72,7 +62,7 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+// ✅ Головне — виключити API маршрути з matcher
 export const config = {
-  matcher: ['/notes/:path*', '/profile/:path*', '/sign-in', '/sign-up'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
-  
