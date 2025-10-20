@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // ✅ Edge runtime (вимагає ревʼю)
-export const runtime = 'experimental-edge';
+export const runtime = 'edge';
 
 export async function middleware(req: NextRequest) {
   const { pathname, origin } = req.nextUrl;
