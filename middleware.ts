@@ -54,7 +54,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // ✅ Автентифікованих не пускаємо на сторінки авторизації
+  //  Автентифікованих не пускаємо на сторінки авторизації
   if (isAuthRoute && (accessToken || refreshToken)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -62,7 +62,7 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// ✅ Головне — виключити API маршрути з matcher
+//  Головне — виключити API маршрути з matcher
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
