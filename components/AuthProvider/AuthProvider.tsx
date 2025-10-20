@@ -14,7 +14,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         const session = await checkSession();
 
         if (session?.email) {
-          //  Потім отримуємо актуального користувача
+          
           const user = await getMe();
           setUser(user);
         } else {
