@@ -4,15 +4,12 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import css from './edit/EditProfilePage.module.css';
 
-//  Додаємо, щоб дозволити cookies → динамічний SSR
-export const dynamic = 'force-dynamic';
-
 //  SEO metadata
 export const metadata: Metadata = {
   title: 'Profile | NoteHub',
 };
 
-//  серверний компонент
+//  Це тепер серверний компонент (без "use client")
 export default async function ProfilePage() {
   try {
     const user = await getMe();
@@ -22,6 +19,7 @@ export default async function ProfilePage() {
         <div className={css.profileCard}>
           <div className={css.header}>
             <h1 className={css.formTitle}>Profile Page</h1>
+            {/*  заміна <a> → Link */}
             <Link href="/profile/edit" className={css.editProfileButton}>
               Edit Profile
             </Link>
@@ -48,7 +46,6 @@ export default async function ProfilePage() {
       </main>
     );
   } catch (error) {
-    console.error('Profile load failed:', error);
     return (
       <main className={css.mainContent}>
         <p className={css.error}>Failed to load profile.</p>
