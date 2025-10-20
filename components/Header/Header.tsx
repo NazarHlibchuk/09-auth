@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import css from './Header.module.css';
 import TagsMenu from '../TagsMenu/TagsMenu';
-import AuthNavigation from '@/components/AuthNavigation/AuthNavigation'; //  додаємо навігацію авторизації
+import AuthNavigation from '@/components/AuthNavigation/AuthNavigation';
 
 const Header = () => {
   return (
@@ -22,7 +22,6 @@ const Header = () => {
             <TagsMenu />
           </li>
 
-          {/* Створення нотатки */}
           <li>
             <Link
               href="/notes/action/create"
@@ -33,10 +32,8 @@ const Header = () => {
             </Link>
           </li>
 
-          {/* 🔹 Навігація авторизації (Sign In / Sign Up / Logout / Profile) */}
-          <li>
-            <AuthNavigation />
-          </li>
+          {/* ✅ Забираємо зайвий <li> */}
+          <AuthNavigation />
         </ul>
       </nav>
     </header>
