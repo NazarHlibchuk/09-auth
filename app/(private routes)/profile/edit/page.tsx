@@ -4,52 +4,56 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuthStore } from '@/lib/store/authStore';
-import { updateMe, getMe } from '@/lib/api/clientApi';
 import css from './EditProfilePage.module.css';
 
 export default function EditProfilePage() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
-
   const [username, setUsername] = useState(user?.username || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  //  Завантаження поточних даних користувача, якщо їх немає в Zustand
+  // ✅ отримуємо користувача через наш backend
   useEffect(() => {
-    const loadUser = async () => {
+    const fetchUser = async () => {
       try {
-        if (!user) {
-          const data = await getMe();
-          setUser(data);
-          setUsername(data.username);
-        }
+        const res = await fetch('/api/users/me');
+        if (!res.ok) throw new Error('Unauthorized');
+        const data = await res.json();
+        setUser(data);
+        setUsername(data.username);
       } catch {
         router.push('/sign-in');
       }
     };
-    loadUser();
+    if (!user) fetchUser();
   }, [user, setUser, router]);
 
-  //  Обробка збереження змін
+  // ✅ PATCH профілю через backend
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
-      const updated = await updateMe({ username });
-      setUser(updated);
+      const res = await fetch('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update profile');
+
+      const updatedUser = await res.json();
+      setUser(updatedUser);
       router.push('/profile');
     } catch (err) {
-      if (err instanceof Error) setError(err.message);
-      else setError('Failed to update profile.');
+      setError('Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
 
-  //  Повернення на сторінку профілю
   const handleCancel = () => router.push('/profile');
 
   if (!user) return <div className={css.loader}>Loading...</div>;

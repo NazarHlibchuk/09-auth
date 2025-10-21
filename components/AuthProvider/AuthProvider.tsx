@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { checkSession, getMe } from '@/lib/api/clientApi';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, logout } = useAuthStore();
@@ -10,14 +9,20 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const syncAuth = async () => {
       try {
-        const isValid = await checkSession(); //  Перевіряємо сесію
-        if (!isValid) {
+        // ✅ Перевіряємо сесію через наш backend
+        const sessionRes = await fetch('/api/auth/session', { method: 'GET' });
+        const sessionData = await sessionRes.json();
+
+        if (!sessionData?.success) {
           logout();
           return;
         }
 
-        //  отримуємо дані користувача після підтвердження сесії
-        const user = await getMe();
+        // ✅ Якщо сесія валідна — отримуємо юзера
+        const userRes = await fetch('/api/users/me');
+        if (!userRes.ok) throw new Error('Failed to fetch user');
+        const user = await userRes.json();
+
         setUser(user);
       } catch {
         logout();
