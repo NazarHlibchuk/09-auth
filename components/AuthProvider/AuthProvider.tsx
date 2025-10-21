@@ -2,22 +2,31 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { checkSession } from '@/lib/api/clientApi';
+import { checkSession, getMe } from '@/lib/api/clientApi';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, logout } = useAuthStore();
 
   useEffect(() => {
-    
-    checkSession()
-      .then((data) => {
-        if (data?.email) {
-          setUser(data);
-        } else {
+    const initAuth = async () => {
+      try {
+        //  Спочатку перевіряємо сесію
+        const session = await checkSession();
+
+        if (!session?.email) {
           logout();
+          return;
         }
-      })
-      .catch(() => logout());
+
+        //  Потім отримуємо повного користувача
+        const user = await getMe();
+        setUser(user);
+      } catch {
+        logout();
+      }
+    };
+
+    initAuth();
   }, [setUser, logout]);
 
   return <>{children}</>;
