@@ -34,9 +34,7 @@ const Header = () => {
           </li>
 
           {/* 🔹 Навігація авторизації (Sign In / Sign Up / Logout / Profile) */}
-          <li>
             <AuthNavigation />
-          </li>
         </ul>
       </nav>
     </header>

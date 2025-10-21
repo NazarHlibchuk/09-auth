@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-const baseURL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
-
 export const api = axios.create({
-  baseURL,
-  withCredentials: true, //  дозволяє надсилати cookies
+  baseURL: '/api', //
+  withCredentials: true, // cookies працюють
   headers: {
     'Content-Type': 'application/json',
   },

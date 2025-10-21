@@ -1,42 +1,35 @@
-'use client';
-
 import { api } from './api';
 import type { User } from '@/types/user';
 
 // ======================= //
-//   AUTH
+//        AUTH
 // ======================= //
 
-//  Реєстрація нового користувача
 export const register = async (body: { email: string; password: string }): Promise<User> => {
   const { data } = await api.post('/auth/register', body);
   return data;
 };
 
-//  Логін користувача
 export const login = async (body: { email: string; password: string }): Promise<User> => {
   const { data } = await api.post('/auth/login', body);
   return data;
 };
 
-//  Вихід із системи
-export const logout = async (): Promise<boolean> => {
-  const res = await api.post('/auth/logout');
-  return res.status === 200;
+export const logout = async (): Promise<void> => {
+  await api.post('/auth/logout');
 };
 
-//  Перевірка активної сесії (через cookies)
-export const checkSession = async (): Promise<User | null> => {
+export const checkSession = async (): Promise<boolean> => {
   try {
     const { data } = await api.get('/auth/session');
-    return data?.email ? data : null;
+    return !!data?.success;
   } catch {
-    return null;
+    return false;
   }
 };
 
 // ======================= //
-//   USER
+//        USER
 // ======================= //
 
 export const getMe = async (): Promise<User> => {
@@ -50,14 +43,10 @@ export const updateMe = async (body: Partial<User>): Promise<User> => {
 };
 
 // ======================= //
-//   NOTES
+//        NOTES
 // ======================= //
 
-export const fetchNotes = async (params?: {
-  search?: string;
-  page?: number;
-  tag?: string;
-}) => {
+export const fetchNotes = async (params?: { search?: string; page?: number; tag?: string }) => {
   const { data } = await api.get('/notes', { params });
   return data;
 };
@@ -67,12 +56,8 @@ export const fetchNoteById = async (id: string) => {
   return data;
 };
 
-export const createNote = async (note: {
-  title: string;
-  content: string;
-  tag: string;
-}) => {
-  const { data } = await api.post('/notes', note);
+export const createNote = async (body: { title: string; content: string; tag: string }) => {
+  const { data } = await api.post('/notes', body);
   return data;
 };
 

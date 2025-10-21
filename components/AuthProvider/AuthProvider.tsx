@@ -2,22 +2,29 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { checkSession } from '@/lib/api/clientApi';
+import { checkSession, getMe } from '@/lib/api/clientApi';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, logout } = useAuthStore();
 
   useEffect(() => {
-    
-    checkSession()
-      .then((data) => {
-        if (data?.email) {
-          setUser(data);
-        } else {
+    const syncAuth = async () => {
+      try {
+        const isValid = await checkSession(); //  Перевіряємо сесію
+        if (!isValid) {
           logout();
+          return;
         }
-      })
-      .catch(() => logout());
+
+        //  отримуємо дані користувача після підтвердження сесії
+        const user = await getMe();
+        setUser(user);
+      } catch {
+        logout();
+      }
+    };
+
+    syncAuth();
   }, [setUser, logout]);
 
   return <>{children}</>;
