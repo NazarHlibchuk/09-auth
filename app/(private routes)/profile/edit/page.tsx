@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuthStore } from '@/lib/store/authStore';
+import { getMe, updateMe } from '@/lib/api/clientApi'; //  Використовуємо clientApi
 import css from './EditProfilePage.module.css';
 
 export default function EditProfilePage() {
@@ -13,42 +14,34 @@ export default function EditProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ отримуємо користувача через наш backend
+  //  Отримуємо юзера через clientApi
   useEffect(() => {
-    const fetchUser = async () => {
+    const loadUser = async () => {
       try {
-        const res = await fetch('/api/users/me');
-        if (!res.ok) throw new Error('Unauthorized');
-        const data = await res.json();
-        setUser(data);
-        setUsername(data.username);
+        if (!user) {
+          const data = await getMe();
+          setUser(data);
+          setUsername(data.username);
+        }
       } catch {
         router.push('/sign-in');
       }
     };
-    if (!user) fetchUser();
+    loadUser();
   }, [user, setUser, router]);
 
-  // ✅ PATCH профілю через backend
+  //  Зберігаємо зміни через updateMe з clientApi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const res = await fetch('/api/users/me', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
-      });
-
-      if (!res.ok) throw new Error('Failed to update profile');
-
-      const updatedUser = await res.json();
-      setUser(updatedUser);
-      router.push('/profile');
+      const updatedUser = await updateMe({ username }); //  Виклик тільки через clientApi
+      setUser(updatedUser); //  Оновлюємо глобальний стейт
+      router.push('/profile'); //  Повертаємо на /profile
     } catch (err) {
-      setError('Failed to update profile');
+      setError('Failed to update profile.');
     } finally {
       setLoading(false);
     }

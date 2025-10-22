@@ -1,24 +1,18 @@
+import { getMe } from '@/lib/api/serverApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import css from './ProfilePage.module.css';
 
+//  SEO metadata
 export const metadata: Metadata = {
   title: 'Profile | NoteHub',
 };
 
 export default async function ProfilePage() {
   try {
-    // ✅ Тепер беремо юзера через наш серверний API маршрут
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/me`, {
-      cache: 'no-store', // важливо, щоб не кешувалося
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed to fetch user');
-    }
-
-    const user = await res.json();
+    //  Використовуємо функцію getMe із serverApi
+    const user = await getMe();
 
     return (
       <main className={css.mainContent}>

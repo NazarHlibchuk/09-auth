@@ -1,11 +1,10 @@
 // middleware.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { parse } from 'cookie';
 import { checkSession } from './lib/api/serverApi';
 
-const privateRoutes = ['/profile'];
+const privateRoutes = ['/profile', '/notes'];
 const authRoutes = ['/sign-in', '/sign-up'];
 
 export async function middleware(request: NextRequest) {
@@ -14,15 +13,19 @@ export async function middleware(request: NextRequest) {
   const accessToken = cookieStore.get('accessToken')?.value;
   const refreshToken = cookieStore.get('refreshToken')?.value;
 
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
+  const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
 
-  if (!accessToken) {
-    if (refreshToken) {
-      // Якщо accessToken відсутній, але є refreshToken — потрібно перевірити сесію навіть для маршруту аутентифікації,
-      // адже сесія може залишатися активною, і тоді потрібно заборонити доступ до маршруту аутентифікації.
-      const data = await checkSession();
-      const setCookie = data.headers['set-cookie'];
+  //  Якщо немає токенів і це приватний маршрут
+  if (!accessToken && !refreshToken && isPrivateRoute) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  //  Якщо accessToken немає, але є refreshToken — оновлюємо сесію
+  if (!accessToken && refreshToken) {
+    try {
+      const session = await checkSession();
+      const setCookie = session.headers['set-cookie'];
 
       if (setCookie) {
         const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
@@ -36,48 +39,23 @@ export async function middleware(request: NextRequest) {
           if (parsed.accessToken) cookieStore.set('accessToken', parsed.accessToken, options);
           if (parsed.refreshToken) cookieStore.set('refreshToken', parsed.refreshToken, options);
         }
-        // Якщо сесія все ще активна:
-        // для приватного маршруту — виконуємо редірект на головну.
-        if (isAuthRoute) {
-          return NextResponse.redirect(new URL('/', request.url), {
-            headers: {
-              Cookie: cookieStore.toString(),
-            },
-          });
-        }
-        // для приватного маршруту — дозволяємо доступ
-        if (isPrivateRoute) {
-          return NextResponse.next({
-            headers: {
-              Cookie: cookieStore.toString(),
-            },
-          });
-        }
       }
-    }
-    // Якщо refreshToken або сесії немає:
-    // маршрут аутентифікації — дозволяємо доступ
-    if (isAuthRoute) {
-      return NextResponse.next();
-    }
-
-    // приватний маршрут — редірект на сторінку входу
-    if (isPrivateRoute) {
+    } catch {
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
   }
 
-  // Якщо accessToken існує:
-  // приватний маршрут — виконуємо редірект на головну
-  if (isAuthRoute) {
+  //  Заборонити авторизованим заходити на /sign-in або /sign-up
+  if (isAuthRoute && (accessToken || refreshToken)) {
     return NextResponse.redirect(new URL('/', request.url));
   }
-  // приватний маршрут — дозволяємо доступ
-  if (isPrivateRoute) {
-    return NextResponse.next();
-  }
+
+  //  Дозволити доступ в усіх інших випадках
+  return NextResponse.next();
 }
 
+//  Matcher для приватних і auth маршрутів
 export const config = {
-  matcher: ['/profile/:path*', '/sign-in', '/sign-up'],
+  matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
 };
+

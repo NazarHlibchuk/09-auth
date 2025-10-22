@@ -1,3 +1,4 @@
+// lib/api/clientApi.ts
 import { api } from './api';
 import type { User } from '@/types/user';
 
@@ -19,6 +20,7 @@ export const logout = async (): Promise<void> => {
   await api.post('/auth/logout');
 };
 
+// Перевіряємо чи є активна сесія
 export const checkSession = async (): Promise<boolean> => {
   try {
     const { data } = await api.get('/auth/session');
@@ -37,7 +39,8 @@ export const getMe = async (): Promise<User> => {
   return data;
 };
 
-export const updateMe = async (body: Partial<User>): Promise<User> => {
+// ✅ ВАЖЛИВО: дозволяємо оновлювати тільки username
+export const updateMe = async (body: { username: string }): Promise<User> => {
   const { data } = await api.patch('/users/me', body);
   return data;
 };
